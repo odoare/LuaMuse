@@ -1,4 +1,6 @@
 require('../scale')
+require('../note')
+require('../mode')
 luaunit = require('luaunit')
 
 TestScale = {}
@@ -7,6 +9,32 @@ function TestScale:setUp()
 end
 
 function TestScale:tearDown()
+end
+
+function TestScale:testFromTonicAndMode()
+  local esharp = Note(NotesNames.E, 1)
+  local esharp_locrian = Scale.from_tonic_and_mode(esharp, Mode.LOCRIAN)
+  luaunit.assertEquals(esharp_locrian.notes, {
+    Note(NotesNames.E, 1),
+    Note(NotesNames.F, 1),
+    Note(NotesNames.G, 1),
+    Note(NotesNames.A, 1),
+    Note(NotesNames.B, 0),
+    Note(NotesNames.C, 1),
+    Note(NotesNames.D, 1)
+  })
+end
+
+function TestScale:testGetTonic()
+  local esharp = Note(NotesNames.E, 1)
+  local esharp_locrian = Scale.from_tonic_and_mode(esharp, Mode.LOCRIAN)
+  luaunit.assertEquals(esharp_locrian:get_tonic(), esharp)
+end
+
+function TestScale:testGetMode()
+  local esharp = Note(NotesNames.E, 1)
+  local esharp_locrian = Scale.from_tonic_and_mode(esharp, Mode.LOCRIAN)
+  luaunit.assertEquals(esharp_locrian:get_mode(), Mode.LOCRIAN)
 end
 
 function TestScale:testCMajor()
@@ -136,6 +164,36 @@ function TestScale:testClone()
   local clone = c_major:clone()
   luaunit.assertEquals(c_major, clone)
   luaunit.assertNotIs(c_major, clone)
+end
+
+function TestScale:testToTheLeftOnCircleOf5ths()
+  local c_major = Scale.c_major()
+  luaunit.assertEquals(c_major:to_the_left_on_circle_of_5ths(2), Scale({
+    Note(NotesNames.B, -1),
+    Note(NotesNames.C, 0),
+    Note(NotesNames.D, 0),
+    Note(NotesNames.E, -1),
+    Note(NotesNames.F, 0),
+    Note(NotesNames.G, 0),
+    Note(NotesNames.A, 0),
+  }))
+  luaunit.assertEquals(c_major:to_the_left_on_circle_of_5ths(1)
+    :to_the_right_on_circle_of_5ths(1), c_major)
+end
+
+function TestScale:testToTheRightOnCircleOf5ths()
+  local c_major = Scale.c_major()
+  luaunit.assertEquals(c_major:to_the_right_on_circle_of_5ths(3), Scale({
+    Note(NotesNames.A, 0),
+    Note(NotesNames.B, 0),
+    Note(NotesNames.C, 1),
+    Note(NotesNames.D, 0),
+    Note(NotesNames.E, 0),
+    Note(NotesNames.F, 1),
+    Note(NotesNames.G, 1),
+  }))
+  luaunit.assertEquals(c_major:to_the_right_on_circle_of_5ths(1)
+    :to_the_left_on_circle_of_5ths(1), c_major)
 end
 
 function TestScale:testRotate()

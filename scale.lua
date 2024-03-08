@@ -16,8 +16,26 @@ function Scale.new(notes)
   return self
 end
 
+function Scale.from_tonic_and_mode(tonic, mode)
+  local c_maj = Scale.c_major()
+  local alterations = mode:get_alterations(Mode.IONIAN)
+  return c_maj:add_alterations(alterations):transpose(tonic)
+end
+
 function Scale:clone()
   return Scale(self.notes:clone())
+end
+
+function Scale:get_tonic()
+  return self.notes[1]
+end
+
+function Scale:get_mode()
+  local semi_tones = Array(self:to_semitones())
+  local intervals = semi_tones:rotate_values(1)
+    :zip(semi_tones)
+    :map(function(e) return (e[1] - e[2]) % 12 end)
+  return Mode.from_intervals(intervals)
 end
 
 function Scale:transpose(new_tonic)
@@ -62,6 +80,30 @@ function Scale.c_major()
     Note(NotesNames.A, 0),
     Note(NotesNames.B, 0)
   })
+end
+
+--[[
+  Warning: only works for ionian scales
+]]
+function Scale:to_the_left_on_circle_of_5ths(iterations)
+  if iterations == 0 then
+    return self
+  end
+  return self:rotate(4)
+    :add_alteration(4, -1)
+    :to_the_left_on_circle_of_5ths(iterations -1)
+end
+
+--[[
+  Warning: only works for ionian scales
+]]
+function Scale:to_the_right_on_circle_of_5ths(iterations)
+  if(iterations == 0) then
+    return self
+  end
+  return self:rotate(5)
+    :add_alteration(7, 1)
+    :to_the_right_on_circle_of_5ths(iterations -1)
 end
 
 --[[
