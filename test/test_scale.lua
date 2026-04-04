@@ -375,3 +375,20 @@ function TestScale:test_c5ths_rotate()
   end
   luaunit.assertEquals(next, c_major)
 end
+
+function TestScale:testRotateToNote()
+  local c_major = Scale.c_major() -- C, D, E, F, G, A, B
+  
+  -- Test successful rotation to F (Lydian mode)
+  local f_note = Note(NotesNames.F, 0)
+  local rotated = c_major:rotate_to_note(f_note)
+  luaunit.assertEquals(rotated.notes[1].name, NotesNames.F)
+  luaunit.assertEquals(rotated.notes[2].name, NotesNames.G)
+  luaunit.assertEquals(rotated.notes[7].name, NotesNames.E)
+
+  -- Test rotating to current root (C)
+  local c_note = Note(NotesNames.C, 0)
+  local rotated_c = c_major:rotate_to_note(c_note)
+  luaunit.assertEquals(rotated_c.notes[1].name, NotesNames.C)
+
+end

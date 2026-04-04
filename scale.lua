@@ -127,6 +127,18 @@ function Scale:circle_of_5ths_rotate(iterations)
   end
 end
 
+--[[
+  Rotates the scale so that the specified note becomes the new root.
+  This is a permutation of the existing notes, not a transposition.
+]]
+function Scale:rotate_to_note(target_note)
+  for i, note in ipairs(self.notes) do
+    if note.name == target_note.name then
+      return self:rotate(i)
+    end
+  end
+  return self
+end
 
 --[[
   Returns a new scale based on self, rotated from note_offset
