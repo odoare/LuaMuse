@@ -307,6 +307,38 @@ function Chord:to_ascending_semitones()
   return asc_semitones
 end
 
+function get_nearest_semitones(reference,new)
+  local nearest_semitones = {}
+  for k = 1, #new do
+    local note = new[k]
+    local nearest = note
+    local min_distance = math.huge
+    for _, target_note in ipairs(reference) do
+      for octave_shift = -1, 1 do
+        local candidate = note + 12 * octave_shift
+        local distance = math.abs(candidate - target_note)
+        if distance < min_distance then
+          nearest = candidate
+          min_distance = distance
+        end
+      end
+    end
+    nearest_semitones[k] = nearest
+  end
+  return nearest_semitones
+end
+
+-- Chord inversion that maximizes proximity with a previous chord
+-- Returns the notes as semitones that are nearest
+-- to the given reference notes
+-- The notes are sorted in ascending order
+function Chord:to_nearest_semitones_from(reference)
+  local f = function(n) return n:to_semitone() end
+  local semitones = self:to_notes():map(f)
+  return get_nearest_semitones(reference,semitones)
+end
+
+
 ChordBuilder = {}
 ChordBuilder.__index = ChordBuilder
 
